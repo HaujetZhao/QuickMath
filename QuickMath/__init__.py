@@ -28,7 +28,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 dbname = './database.db'  # 存储预设的数据库名字
 preferenceTableName = 'preference'
 styleFile = './style.css'
-version = 'V1.1.0'
+version = 'V1.3.0'
 conn = sqlite3.connect(dbname)
 platfm = platform.system()
 
@@ -43,6 +43,7 @@ class MainWindow(QMainWindow):
         self.initGui()
         self.initValue()
         self.show()
+        self.resizePixmap()
 
         # self.loadStyleSheet()
         # self.status = self.statusBar() # 状态栏
@@ -89,10 +90,12 @@ class MainWindow(QMainWindow):
 
 
     def resizeEvent(self, event):
+        self.resizePixmap()
+
+    def resizePixmap(self):
         self.originPixMap = self.quickMathTab.pix
         newWidth = self.quickMathTab.size().width()
         newHeight = self.quickMathTab.size().height()
-        print('%s, %s' % (self.quickMathTab.size().width(), self.quickMathTab.size().height()))
 
         # 需要在这里调整 QuickMathTab 的画布大小，并且还要保持上面原来的图像不变。
         origin = self.quickMathTab.pix

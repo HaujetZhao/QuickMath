@@ -8,8 +8,10 @@ from PySide2.QtWidgets import *
 
 try:
     from moduels import MathpixAPI
+    from moduels import LatexLiveAPI
 except:
     from QuickMath.moduels import MathpixAPI
+    from QuickMath.moduels import LatexLiveAPI
 
 
 class QuickMathTab(QWidget):
@@ -34,8 +36,8 @@ class QuickMathTab(QWidget):
 
         self.setWindowTitle("绘图应用")
 
-        self.resize(500, 500)
-        self.pix = QPixmap(500, 500)
+        self.resize(640, 480)
+        self.pix = QPixmap(640, 480)
         # print()
         # self.pix = QPixmap(self.mainWindow.size().width(), self.mainWindow.size().height())
 
@@ -102,52 +104,37 @@ class QuickMathTab(QWidget):
         self.update()
 
     def recognize(self):
+        self.recognizeButton.setEnabled(False)
         self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别中')
-        imagePath = './image.jpg'
-        image = self.pix.save('./image.jpg', 'jpeg')
-        result = MathpixAPI.recognizePixmap(imagePath, self.appid, self.appkey) # 获得识别结果
-        # 这里就得到了识别的结果, 大概长这样:
-        # {
-        #     "detection_list": [],
-        #     "detection_map": {
-        #         "contains_chart": 0,
-        #         "contains_diagram": 0.0001,
-        #         "contains_graph": 0.0002,
-        #         "contains_table": 0,
-        #         "is_blank": 0.0005,
-        #         "is_inverted": 0,
-        #         "is_not_math": 0.0005,
-        #         "is_printed": 0.0008
-        #     },
-        #     "latex_confidence": 0.7462203502655029,
-        #     "latex_confidence_rate": 0.9728515625,
-        #     "latex_simplified": "\\sqrt { 2 } \\times 6 = y",
-        #     "latex_styled": "\\sqrt{2} \\times 6=y",
-        #     "position": {
-        #         "height": 335,
-        #         "top_left_x": 0,
-        #         "top_left_y": 0,
-        #         "width": 545
-        #     },
-        #     "request_id": "71645984d2e2d742c4a24a834b0e6f29",
-        #     "text": "$\\sqrt{2} \\times 6=y$"
-        # }
+        imagePath = './image.png'
+        image = self.pix.save('./image.png', 'png')
+        if self.mainWindow.configTab.mathpixApiMethodRadioButton.isChecked():
+            result = MathpixAPI.recognizePixmap(imagePath, self.appid, self.appkey) # 获得识别结果
+            self.mainWindow.resultLogTab.print(result.replace('\\\\', '\\') + '\n\n') # 不管结果如何，先将其打印到历史记录框
+            if 'error' in result:
+                self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别失败，请查看记录')
+            else:
+                self.clipboard.setText(json.loads(result)['latex_simplified'].replace('\\\\', '\\'))
 
-        self.mainWindow.resultLogTab.print(result.replace('\\\\', '\\') + '\n\n\n')
-        if 'error' in result:
-            self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别失败，请查看记录')
-        else:
-            self.clipboard.setText(json.loads(result)['latex_simplified'].replace('\\\\', '\\'))
-
-            self.mainWindow.configTab.apiUsageSpinbox.setValue(self.mainWindow.configTab.apiUsageSpinbox.value() + 1) # 统计次数加1
-            # print(self.mainWindow.configTab.apiUsageSpinbox.value()) # 统计次数加1
-            self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别完成，已复制')
+                self.mainWindow.configTab.apiUsageSpinbox.setValue(self.mainWindow.configTab.apiUsageSpinbox.value() + 1) # 统计次数加1
+                # print(self.mainWindow.configTab.apiUsageSpinbox.value()) # 统计次数加1
+                self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别完成，已复制')
+        elif self.mainWindow.configTab.latexLiveMethodRadioButton.isChecked(): # 使用 妈咪叔的 LatexLive 接口进行识别
+            result = LatexLiveAPI.recognizePixmap(imagePath)  # 获得识别结果
+            self.mainWindow.resultLogTab.print(result.replace('\\\\', '\\') + '\n\n') # 不管结果如何，先将其打印到历史记录框
+            if 'latex_styled' not in result:
+                self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别失败，请查看记录')
+            else:
+                self.clipboard.setText(json.loads(result)['latex_styled'].replace('\\\\', '\\'))
+                self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别完成，已复制')
+        self.recognizeButton.setEnabled(True)
         if self.mainWindow.configTab.clearPixmapWhenFinishedSwitch.isChecked():
             self.clearPixmap()
         if self.mainWindow.configTab.hideToTaskBarWhenFinishedSwitch.isChecked():
             self.mainWindow.showMinimized()
         if self.mainWindow.configTab.hideToSystemTrayWhenFinishedSwitch.isChecked():
             self.mainWindow.hide()
+
 
 
 

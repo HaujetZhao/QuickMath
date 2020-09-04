@@ -39,6 +39,12 @@ class ConfigTab(QWidget):
         self.resultStyleComboBox = QComboBox()
         self.boxForResultStyle = QHBoxLayout()
 
+        self.chooseMethodBox = QHBoxLayout()
+        self.chooseMethodHint = QLabel('识别方法：')
+        self.mathpixApiMethodRadioButton = QRadioButton('使用 Mathpix Api')
+        self.latexLiveMethodRadioButton = QRadioButton('使用 LatexLive')
+
+
         self.preferenceGroupLayout = QVBoxLayout()
 
         self.preferenceGroup = QGroupBox(self.tr('偏好设置'))
@@ -52,7 +58,7 @@ class ConfigTab(QWidget):
 
         self.saveApiButton = QPushButton('保存 API 设置')
 
-        self.apiGroup = QGroupBox(self.tr('API 设置'))
+        self.apiGroup = QGroupBox(self.tr('Mathpix API 设置'))
 
         self.masterLayout = QVBoxLayout()
 
@@ -77,13 +83,21 @@ class ConfigTab(QWidget):
         self.apiUsageBox.addWidget(self.apiUsageHint)
         self.apiUsageBox.addWidget(self.apiUsageSpinbox)
 
+        self.chooseMethodBox.addWidget(self.chooseMethodHint)
+        self.chooseMethodBox.addWidget(self.mathpixApiMethodRadioButton)
+        self.chooseMethodBox.addWidget(self.latexLiveMethodRadioButton)
+
         self.preferenceGroupLayout.addWidget(self.hideToSystemTraySwitch)
         # self.preferenceGroupLayout.addWidget(self.alwaysForegroundSwitch)
         self.preferenceGroupLayout.addWidget(self.clearPixmapWhenFinishedSwitch)
         self.preferenceGroupLayout.addLayout(self.boxForHideOptionsWhenFinished)
         self.preferenceGroupLayout.addLayout(self.penLineWidthBox)
         self.preferenceGroupLayout.addLayout(self.apiUsageBox)
+        self.preferenceGroupLayout.addLayout(self.chooseMethodBox)
         # self.preferenceGroupLayout.addLayout(self.boxForResultStyle)
+
+
+
 
         self.preferenceGroup.setLayout(self.preferenceGroupLayout)
 
@@ -112,6 +126,8 @@ class ConfigTab(QWidget):
         self.doNotHideWhenFinishedSwitch.clicked.connect(self.hideOptionsWhenFinishedSwitchClicked)
         self.hideToTaskBarWhenFinishedSwitch.clicked.connect(self.hideOptionsWhenFinishedSwitchClicked)
         self.hideToSystemTrayWhenFinishedSwitch.clicked.connect(self.hideOptionsWhenFinishedSwitchClicked)
+        self.mathpixApiMethodRadioButton.clicked.connect(self.mathpixApiMethodRadioButtonClicked)
+        self.latexLiveMethodRadioButton.clicked.connect(self.latexLiveMethodRadioButtonClicked)
         self.saveApiButton.clicked.connect(self.saveApiButtonClicked)
 
     def checkDB(self):
@@ -191,6 +207,20 @@ class ConfigTab(QWidget):
             elif hideOptionsWhenFinishedResult == '2':
                 self.hideToSystemTrayWhenFinishedSwitch.setChecked(True)
 
+        chooseMethodResult = cursor.execute('''select value from %s where item = '%s'; ''' % (
+            self.preferenceTableName, 'chooseMethodBox')).fetchone()
+        if chooseMethodResult == None:
+            cursor.execute(
+                '''insert into %s (item, value) values ('chooseMethodBox', 'Mathpix') ''' % self.preferenceTableName)
+            self.conn.commit()
+            self.mathpixApiMethodRadioButton.click()
+        else:
+            chooseMethodResult = chooseMethodResult[0]
+            if chooseMethodResult == 'Mathpix':
+                self.mathpixApiMethodRadioButton.click()
+            else:
+                self.latexLiveMethodRadioButton.click()
+
         appidResult = cursor.execute('''select value from %s where item = '%s'; ''' % (
             self.preferenceTableName, 'appid')).fetchone()
         if appidResult == None:  # 如果识别完成后清空画布这个选项还没有在数据库创建，那就创建一个
@@ -250,6 +280,17 @@ class ConfigTab(QWidget):
         elif self.hideToSystemTrayWhenFinishedSwitch.isChecked():
             cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, '2', 'hideOptionsWhenFinished'))
         self.conn.commit()
+
+    def mathpixApiMethodRadioButtonClicked(self):
+        cursor = self.conn.cursor()
+        cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, 'Mathpix', 'chooseMethodBox'))
+        self.conn.commit()
+
+    def latexLiveMethodRadioButtonClicked(self):
+        cursor = self.conn.cursor()
+        cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, 'LatexLive', 'chooseMethodBox'))
+        self.conn.commit()
+
 
     def saveApiButtonClicked(self):
         cursor = self.conn.cursor()
