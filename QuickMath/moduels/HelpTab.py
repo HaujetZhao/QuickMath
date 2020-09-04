@@ -6,7 +6,10 @@ from PySide2.QtGui import *
 from PySide2.QtSql import *
 from PySide2.QtWidgets import *
 
-from moduels.SponsorDialog import SponsorDialog
+try:
+    from moduels.SponsorDialog import SponsorDialog
+except:
+    from QuickMath.moduels.SponsorDialog import SponsorDialog
 
 
 # 帮助页面
