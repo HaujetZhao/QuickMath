@@ -1,7 +1,7 @@
 # coding=utf-8
 # python setup.py sdist build
 # python setup.py sdist –formats = gztar,zip
-# twine upload "dist/QuickMath-1.0.0.tar.gz"
+# twine upload "dist/QuickMath-1.1.0.post2.tar.gz"
 # 这是用于上传 pypi 前打包用的
 
 
@@ -15,7 +15,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(
     name='QuickMath',
-    version='1.0.0',
+    version='1.1.0.post2',
     description=(
         '快速的数学公式手写插入工具（使用了 Mathpix API）'
     ),

@@ -26,9 +26,14 @@ class ConfigTab(QWidget):
         self.doNotHideWhenFinishedSwitch = QRadioButton(self.tr('识别后不要最小化'))
         self.hideToTaskBarWhenFinishedSwitch = QRadioButton(self.tr('识别后最小化'))
         self.hideToSystemTrayWhenFinishedSwitch = QRadioButton(self.tr('识别后隐藏到托盘'))
-        self.penLineWidthHint = QLabel('画笔宽度')
+        self.penLineWidthHint = QLabel('画笔宽度：')
         self.penLineWidthSpinbox = QSpinBox()
+        self.penLineWidthBox = QHBoxLayout()
         self.boxForHideOptionsWhenFinished = QHBoxLayout()
+
+        self.apiUsageHint = QLabel('API 已使用次数：')
+        self.apiUsageSpinbox = QSpinBox()
+        self.apiUsageBox = QHBoxLayout()
 
         self.resultStyleHint = QLabel('结果样式：')
         self.resultStyleComboBox = QComboBox()
@@ -53,7 +58,7 @@ class ConfigTab(QWidget):
 
 
     def initValues(self):
-        self.checkDB()
+
 
         self.boxForHideOptionsWhenFinished.addWidget(self.doNotHideWhenFinishedSwitch)
         self.boxForHideOptionsWhenFinished.addWidget(self.hideToTaskBarWhenFinishedSwitch)
@@ -64,15 +69,20 @@ class ConfigTab(QWidget):
         self.boxForResultStyle.addWidget(self.resultStyleHint)
         self.boxForResultStyle.addWidget(self.resultStyleComboBox)
 
-        self.penLineWidthBox = QHBoxLayout()
+
         self.penLineWidthBox.addWidget(self.penLineWidthHint)
         self.penLineWidthBox.addWidget(self.penLineWidthSpinbox)
+
+        self.apiUsageSpinbox.setMaximum(9999999)
+        self.apiUsageBox.addWidget(self.apiUsageHint)
+        self.apiUsageBox.addWidget(self.apiUsageSpinbox)
 
         self.preferenceGroupLayout.addWidget(self.hideToSystemTraySwitch)
         # self.preferenceGroupLayout.addWidget(self.alwaysForegroundSwitch)
         self.preferenceGroupLayout.addWidget(self.clearPixmapWhenFinishedSwitch)
         self.preferenceGroupLayout.addLayout(self.boxForHideOptionsWhenFinished)
         self.preferenceGroupLayout.addLayout(self.penLineWidthBox)
+        self.preferenceGroupLayout.addLayout(self.apiUsageBox)
         # self.preferenceGroupLayout.addLayout(self.boxForResultStyle)
 
         self.preferenceGroup.setLayout(self.preferenceGroupLayout)
@@ -91,11 +101,14 @@ class ConfigTab(QWidget):
         self.masterLayout.addStretch(1)
         self.setLayout(self.masterLayout)
 
+        self.checkDB()
+
     def connectSlots(self):
         self.hideToSystemTraySwitch.clicked.connect(self.hideToSystemTraySwitchClicked)
         self.alwaysForegroundSwitch.clicked.connect(self.alwaysForegroundSwitchClicked)
         self.clearPixmapWhenFinishedSwitch.clicked.connect(self.clearPixmapWhenFinishedSwitchClicked)
         self.penLineWidthSpinbox.valueChanged.connect(self.penLineWidthSpinboxChanged)
+        self.apiUsageSpinbox.valueChanged.connect(self.apiUsageSpinboxChanged)
         self.doNotHideWhenFinishedSwitch.clicked.connect(self.hideOptionsWhenFinishedSwitchClicked)
         self.hideToTaskBarWhenFinishedSwitch.clicked.connect(self.hideOptionsWhenFinishedSwitchClicked)
         self.hideToSystemTrayWhenFinishedSwitch.clicked.connect(self.hideOptionsWhenFinishedSwitchClicked)
@@ -138,6 +151,17 @@ class ConfigTab(QWidget):
         else:
             penLineWidthResult = penLineWidthResult[0]
             self.penLineWidthSpinbox.setValue(int(penLineWidthResult))
+
+        apiUsageResult = cursor.execute('''select value from %s where item = '%s'; ''' % (
+            self.preferenceTableName, 'apiUsageSpinbox')).fetchone()
+        if apiUsageResult == None:  # 如果始终前台这个选项还没有在数据库创建，那就创建一个
+            cursor.execute(
+                '''insert into %s (item, value) values ('apiUsageSpinbox', '0') ''' % self.preferenceTableName)
+            self.conn.commit()
+            self.penLineWidthSpinbox.setValue(0)
+        else:
+            apiUsageResult = apiUsageResult[0]
+            self.apiUsageSpinbox.setValue(int(apiUsageResult))
 
         clearPixmapWhenFinishedResult = cursor.execute('''select value from %s where item = '%s'; ''' % (
             self.preferenceTableName, 'clearPixmapWhenFinishedSwitch')).fetchone()
@@ -197,6 +221,11 @@ class ConfigTab(QWidget):
     def penLineWidthSpinboxChanged(self):
         cursor = self.conn.cursor()
         cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, str(self.penLineWidthSpinbox.value()), 'penLineWidthSpinbox'))
+        self.conn.commit()
+
+    def apiUsageSpinboxChanged(self):
+        cursor = self.conn.cursor()
+        cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, str(self.apiUsageSpinbox.value()), 'apiUsageSpinbox'))
         self.conn.commit()
 
     def alwaysForegroundSwitchClicked(self):

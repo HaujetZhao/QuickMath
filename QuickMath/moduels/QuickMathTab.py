@@ -133,6 +133,9 @@ class QuickMathTab(QWidget):
             self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别失败，请查看记录')
         else:
             self.clipboard.setText(json.loads(result)['latex_simplified'].replace('\\\\', '\\'))
+
+            self.mainWindow.configTab.apiUsageSpinbox.setValue(self.mainWindow.configTab.apiUsageSpinbox.value() + 1) # 统计次数加1
+            # print(self.mainWindow.configTab.apiUsageSpinbox.value()) # 统计次数加1
             self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别完成，已复制')
         if self.mainWindow.configTab.clearPixmapWhenFinishedSwitch.isChecked():
             self.clearPixmap()

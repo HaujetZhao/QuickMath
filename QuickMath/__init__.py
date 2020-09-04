@@ -18,7 +18,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 dbname = './database.db'  # 存储预设的数据库名字
 preferenceTableName = 'preference'
 styleFile = './style.css'
-version = 'V1.0.0'
+version = 'V1.1.0'
 conn = sqlite3.connect(dbname)
 platfm = platform.system()
 
