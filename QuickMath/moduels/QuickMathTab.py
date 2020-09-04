@@ -6,7 +6,10 @@ from PySide2.QtCore import *
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
-from QuickMath.moduels import MathpixAPI
+try:
+    from moduels import MathpixAPI
+else:
+    from QuickMath.moduels import MathpixAPI
 
 
 class QuickMathTab(QWidget):
@@ -33,6 +36,8 @@ class QuickMathTab(QWidget):
 
         self.resize(500, 500)
         self.pix = QPixmap(500, 500)
+        # print()
+        # self.pix = QPixmap(self.mainWindow.size().width(), self.mainWindow.size().height())
 
         self.clearButton = QPushButton('清空(Esc)')
         self.recognizeButton = QPushButton('识别(Enter)')

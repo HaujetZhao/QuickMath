@@ -8,11 +8,21 @@ from PySide2.QtGui import *
 from PySide2.QtSql import *
 from PySide2.QtWidgets import *
 
-from QuickMath.moduels.SystemTray import SystemTray # 引入托盘栏
-from QuickMath.moduels.QuickMathTab import QuickMathTab # 引入书写界面的 tab
-from QuickMath.moduels.ConfigTab import ConfigTab # 引入书写界面的 tab
-from QuickMath.moduels.ResultLogTab import ResultLogTab # 引入书写界面的 tab
-from QuickMath.moduels.HelpTab import HelpTab # 引入书写界面的 tab
+try:
+    from moduels.SystemTray import SystemTray # 引入托盘栏
+    from moduels.QuickMathTab import QuickMathTab # 引入书写界面的 tab
+    from moduels.ConfigTab import ConfigTab # 引入设置界面的 tab
+    from moduels.ResultLogTab import ResultLogTab # 引入历史记录界面的 tab
+    from moduels.LatexLiveTab import LatexLiveTab # 引入LatexLive界面的 tab
+    from moduels.HelpTab import HelpTab # 引入帮助界面界面的 tab
+else:
+    from QuickMath.moduels.SystemTray import SystemTray # 引入托盘栏
+    from QuickMath.moduels.QuickMathTab import QuickMathTab # 引入书写界面的 tab
+    from QuickMath.moduels.ConfigTab import ConfigTab # 引入设置界面的 tab
+    from QuickMath.moduels.ResultLogTab import ResultLogTab # 引入历史记录界面的 tab
+    from QuickMath.moduels.LatexLiveTab import LatexLiveTab # 引入LatexLive界面的 tab
+    from QuickMath.moduels.HelpTab import HelpTab # 引入帮助界面界面的 tab
+
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 dbname = './database.db'  # 存储预设的数据库名字
@@ -21,6 +31,7 @@ styleFile = './style.css'
 version = 'V1.1.0'
 conn = sqlite3.connect(dbname)
 platfm = platform.system()
+
 
 
 class MainWindow(QMainWindow):
@@ -47,10 +58,9 @@ class MainWindow(QMainWindow):
         # 定义多个不同功能的 tab
         self.quickMathTab = QuickMathTab(self, conn, preferenceTableName)  # 主要功能的 tab
         self.configTab = ConfigTab(self, conn, preferenceTableName)  # 设置界面
-        self.resultLogTab = ResultLogTab(self, conn, preferenceTableName)  # 设置界面
-        self.helpTab = HelpTab(version, platfm)  # 设置界面
-        #
-        # # 将这些不同功能的tab放到tab控件
+        self.resultLogTab = ResultLogTab(self, conn, preferenceTableName)  # 历史记录界面
+        self.latexLiveTab = LatexLiveTab(self)  # latexlive界面
+        self.helpTab = HelpTab(version, platfm)  # 帮助界面
         #
 
         # self.adjustSize()
@@ -64,6 +74,7 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.quickMathTab, self.tr('QuickMath'))
         self.tabs.addTab(self.configTab, self.tr('设置'))
         self.tabs.addTab(self.resultLogTab, self.tr('记录'))
+        self.tabs.addTab(self.latexLiveTab, self.tr('LatexLive'))
         self.tabs.addTab(self.helpTab, self.tr('帮助'))
         # # self.tabs.addTab(self.helpTab, self.tr('帮助'))
 
