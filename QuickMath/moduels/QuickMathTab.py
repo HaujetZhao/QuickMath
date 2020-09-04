@@ -8,7 +8,7 @@ from PySide2.QtWidgets import *
 
 try:
     from moduels import MathpixAPI
-else:
+except:
     from QuickMath.moduels import MathpixAPI
 
 

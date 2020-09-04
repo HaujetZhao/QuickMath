@@ -15,7 +15,7 @@ try:
     from moduels.ResultLogTab import ResultLogTab # 引入历史记录界面的 tab
     from moduels.LatexLiveTab import LatexLiveTab # 引入LatexLive界面的 tab
     from moduels.HelpTab import HelpTab # 引入帮助界面界面的 tab
-else:
+except:
     from QuickMath.moduels.SystemTray import SystemTray # 引入托盘栏
     from QuickMath.moduels.QuickMathTab import QuickMathTab # 引入书写界面的 tab
     from QuickMath.moduels.ConfigTab import ConfigTab # 引入设置界面的 tab
