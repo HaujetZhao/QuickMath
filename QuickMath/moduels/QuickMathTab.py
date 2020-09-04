@@ -110,22 +110,22 @@ class QuickMathTab(QWidget):
         image = self.pix.save('./image.png', 'png')
         if self.mainWindow.configTab.mathpixApiMethodRadioButton.isChecked():
             result = MathpixAPI.recognizePixmap(imagePath, self.appid, self.appkey) # 获得识别结果
-            self.mainWindow.resultLogTab.print(result.replace('\\\\', '\\') + '\n\n') # 不管结果如何，先将其打印到历史记录框
+            self.mainWindow.resultLogTab.print(result + '\n\n') # 不管结果如何，先将其打印到历史记录框
             if 'error' in result:
                 self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别失败，请查看记录')
             else:
-                self.clipboard.setText(json.loads(result)['latex_simplified'].replace('\\\\', '\\'))
+                self.clipboard.setText(json.loads(result)['latex_simplified'])
 
                 self.mainWindow.configTab.apiUsageSpinbox.setValue(self.mainWindow.configTab.apiUsageSpinbox.value() + 1) # 统计次数加1
                 # print(self.mainWindow.configTab.apiUsageSpinbox.value()) # 统计次数加1
                 self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别完成，已复制')
         elif self.mainWindow.configTab.latexLiveMethodRadioButton.isChecked(): # 使用 妈咪叔的 LatexLive 接口进行识别
             result = LatexLiveAPI.recognizePixmap(imagePath)  # 获得识别结果
-            self.mainWindow.resultLogTab.print(result.replace('\\\\', '\\') + '\n\n') # 不管结果如何，先将其打印到历史记录框
+            self.mainWindow.resultLogTab.print(result + '\n\n') # 不管结果如何，先将其打印到历史记录框
             if 'latex_styled' not in result:
                 self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别失败，请查看记录')
             else:
-                self.clipboard.setText(json.loads(result)['latex_styled'].replace('\\\\', '\\'))
+                self.clipboard.setText(json.loads(result)['latex_styled'])
                 self.mainWindow.setWindowTitle(self.mainWindow.windowTitle + '   识别完成，已复制')
         self.recognizeButton.setEnabled(True)
         if self.mainWindow.configTab.clearPixmapWhenFinishedSwitch.isChecked():
