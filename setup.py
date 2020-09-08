@@ -1,7 +1,7 @@
 # coding=utf-8
 # python setup.py sdist build
 # python setup.py sdist –formats = gztar,zip
-# twine upload "dist/QuickMath-1.3.1.tar.gz"
+# twine upload "dist/QuickMath-1.3.2.tar.gz"
 # 这是用于上传 pypi 前打包用的
 
 
@@ -15,7 +15,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
 
 setup(
     name='QuickMath',
-    version='1.3.1',
+    version='1.3.2',
     description=(
         '快速的数学公式手写插入工具（使用了 Mathpix API）'
     ),
@@ -28,7 +28,8 @@ setup(
     maintainer_email='1292756898@qq.com',
     license='MPL-2.0 License',
     install_requires=[ # 需要额外安装的包
-        'pyside2'
+        'pyside2',
+        'requests'
         ],
     packages=['QuickMath', 'QuickMath/misc', 'QuickMath/moduels'], # 需要打包的本地包（package）
     package_data={ # 每个本地包中需要包含的另外的文件

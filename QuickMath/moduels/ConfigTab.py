@@ -26,10 +26,12 @@ class ConfigTab(QWidget):
         self.doNotHideWhenFinishedSwitch = QRadioButton(self.tr('识别后不要最小化'))
         self.hideToTaskBarWhenFinishedSwitch = QRadioButton(self.tr('识别后最小化'))
         self.hideToSystemTrayWhenFinishedSwitch = QRadioButton(self.tr('识别后隐藏到托盘'))
+        self.boxLayoutForHideOptionsWhenFinished = QHBoxLayout()
+        self.boxForHideOptionsWhenFinished = QWidget()
+
         self.penLineWidthHint = QLabel('画笔宽度：')
         self.penLineWidthSpinbox = QSpinBox()
         self.penLineWidthBox = QHBoxLayout()
-        self.boxForHideOptionsWhenFinished = QHBoxLayout()
 
         self.apiUsageHint = QLabel('API 已使用次数：')
         self.apiUsageSpinbox = QSpinBox()
@@ -39,7 +41,8 @@ class ConfigTab(QWidget):
         self.resultStyleComboBox = QComboBox()
         self.boxForResultStyle = QHBoxLayout()
 
-        self.chooseMethodBox = QHBoxLayout()
+        self.boxLayoutForChooseMethod = QHBoxLayout()
+        self.boxForChooseMethod = QWidget()
         self.chooseMethodHint = QLabel('识别方法：')
         self.mathpixApiMethodRadioButton = QRadioButton('使用 Mathpix Api')
         self.latexLiveMethodRadioButton = QRadioButton('使用 LatexLive')
@@ -66,9 +69,12 @@ class ConfigTab(QWidget):
     def initValues(self):
 
 
-        self.boxForHideOptionsWhenFinished.addWidget(self.doNotHideWhenFinishedSwitch)
-        self.boxForHideOptionsWhenFinished.addWidget(self.hideToTaskBarWhenFinishedSwitch)
-        self.boxForHideOptionsWhenFinished.addWidget(self.hideToSystemTrayWhenFinishedSwitch)
+        self.boxLayoutForHideOptionsWhenFinished.addWidget(self.doNotHideWhenFinishedSwitch)
+        self.boxLayoutForHideOptionsWhenFinished.addWidget(self.hideToTaskBarWhenFinishedSwitch)
+        self.boxLayoutForHideOptionsWhenFinished.addWidget(self.hideToSystemTrayWhenFinishedSwitch)
+        self.boxLayoutForHideOptionsWhenFinished.setContentsMargins(0,0,0,0)
+        self.boxForHideOptionsWhenFinished.setContentsMargins(0,0,0,0)
+        self.boxForHideOptionsWhenFinished.setLayout(self.boxLayoutForHideOptionsWhenFinished)
 
         self.resultStyleComboBox.addItems([r'a + b = c', r'a+b=c', r'$a + b = c$', r'$a+b=c$'])
 
@@ -83,17 +89,20 @@ class ConfigTab(QWidget):
         self.apiUsageBox.addWidget(self.apiUsageHint)
         self.apiUsageBox.addWidget(self.apiUsageSpinbox)
 
-        self.chooseMethodBox.addWidget(self.chooseMethodHint)
-        self.chooseMethodBox.addWidget(self.mathpixApiMethodRadioButton)
-        self.chooseMethodBox.addWidget(self.latexLiveMethodRadioButton)
+        self.boxLayoutForChooseMethod.addWidget(self.chooseMethodHint)
+        self.boxLayoutForChooseMethod.addWidget(self.mathpixApiMethodRadioButton)
+        self.boxLayoutForChooseMethod.addWidget(self.latexLiveMethodRadioButton)
+        self.boxLayoutForChooseMethod.setContentsMargins(0,0,0,0)
+        self.boxForChooseMethod.setContentsMargins(0,0,0,0)
+        self.boxForChooseMethod.setLayout(self.boxLayoutForChooseMethod)
 
         self.preferenceGroupLayout.addWidget(self.hideToSystemTraySwitch)
         # self.preferenceGroupLayout.addWidget(self.alwaysForegroundSwitch)
         self.preferenceGroupLayout.addWidget(self.clearPixmapWhenFinishedSwitch)
-        self.preferenceGroupLayout.addLayout(self.boxForHideOptionsWhenFinished)
+        self.preferenceGroupLayout.addWidget(self.boxForHideOptionsWhenFinished)
         self.preferenceGroupLayout.addLayout(self.penLineWidthBox)
         self.preferenceGroupLayout.addLayout(self.apiUsageBox)
-        self.preferenceGroupLayout.addLayout(self.chooseMethodBox)
+        self.preferenceGroupLayout.addWidget(self.boxForChooseMethod)
         # self.preferenceGroupLayout.addLayout(self.boxForResultStyle)
 
 
@@ -208,10 +217,10 @@ class ConfigTab(QWidget):
                 self.hideToSystemTrayWhenFinishedSwitch.setChecked(True)
 
         chooseMethodResult = cursor.execute('''select value from %s where item = '%s'; ''' % (
-            self.preferenceTableName, 'chooseMethodBox')).fetchone()
+            self.preferenceTableName, 'boxLayoutForChooseMethod')).fetchone()
         if chooseMethodResult == None:
             cursor.execute(
-                '''insert into %s (item, value) values ('chooseMethodBox', 'Mathpix') ''' % self.preferenceTableName)
+                '''insert into %s (item, value) values ('boxLayoutForChooseMethod', 'Mathpix') ''' % self.preferenceTableName)
             self.conn.commit()
             self.mathpixApiMethodRadioButton.click()
         else:
@@ -283,12 +292,12 @@ class ConfigTab(QWidget):
 
     def mathpixApiMethodRadioButtonClicked(self):
         cursor = self.conn.cursor()
-        cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, 'Mathpix', 'chooseMethodBox'))
+        cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, 'Mathpix', 'boxLayoutForChooseMethod'))
         self.conn.commit()
 
     def latexLiveMethodRadioButtonClicked(self):
         cursor = self.conn.cursor()
-        cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, 'LatexLive', 'chooseMethodBox'))
+        cursor.execute('''update %s set value='%s' where item = '%s';''' % (self.preferenceTableName, 'LatexLive', 'boxLayoutForChooseMethod'))
         self.conn.commit()
 
 
