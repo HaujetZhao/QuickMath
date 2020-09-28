@@ -28,7 +28,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 dbname = './database.db'  # 存储预设的数据库名字
 preferenceTableName = 'preference'
 styleFile = './style.css'
-version = 'V1.3.2'
+version = 'V1.4.0'
 conn = sqlite3.connect(dbname)
 platfm = platform.system()
 
@@ -53,9 +53,8 @@ class MainWindow(QMainWindow):
 
     def initGui(self):
         # 定义中心控件为多 tab 控件
+
         self.tabs = QTabWidget()
-
-
         # 定义多个不同功能的 tab
         self.quickMathTab = QuickMathTab(self, conn, preferenceTableName)  # 主要功能的 tab
         self.configTab = ConfigTab(self, conn, preferenceTableName)  # 设置界面
@@ -85,6 +84,8 @@ class MainWindow(QMainWindow):
         else:
             self.setWindowIcon(QIcon('icon.icns'))
         self.setWindowTitle(self.windowTitle)
+        屏幕大小 = QGuiApplication.screens()[0].geometry()
+        self.resize(屏幕大小.width() / 1.5, 屏幕大小.height() / 3.5)
 
 
 
@@ -153,11 +154,19 @@ def createDB():
         conn.commit()
     pass
 
+def eventFilter(self, watched, event) -> bool:
+    print(event.type())
+    # print(event.type())
+    # self.mouseMoveEvent(event)
+    return True
+
 def main():
     global mainWindow
     createDB()  # 初始化数据库
     app = QApplication(sys.argv)
     mainWindow = MainWindow()
+
+    app.installEventFilter(mainWindow.quickMathTab)
     # 设定托盘图标
     if platfm == 'Windows':
         tray = SystemTray(QIcon('icon.ico'), mainWindow)
